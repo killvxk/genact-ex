@@ -1,12 +1,52 @@
 //! Pretend to train a large language model
 use async_trait::async_trait;
+use chrono::Local;
+use progress_string::BarBuilder;
 use rand::rng;
 use rand::seq::IndexedRandom;
+use rand::Rng;
+use yansi::Paint;
 
 use crate::args::AppConfig;
 use crate::data::{GPU_MODELS_LIST, LLM_DATASETS_LIST, LLM_MODELS_LIST};
-use crate::io::{csleep, newline, print};
+use crate::io::{csleep, erase_line, newline, print};
 use crate::modules::Module;
+
+/// Log an INFO message with timestamp
+async fn log_info(message: &str) {
+    let ts = Local::now().format("%Y-%m-%d %H:%M:%S");
+    print(format!("[{}] {} {}", ts, Paint::green("INFO").bold(), message)).await;
+    newline().await;
+}
+
+/// Log an INFO message with timestamp and rank info
+async fn log_info_rank(rank: u32, world_size: u32, message: &str) {
+    let ts = Local::now().format("%Y-%m-%d %H:%M:%S");
+    print(format!(
+        "[{}] [Rank {}/{}] {} {}",
+        ts,
+        rank,
+        world_size,
+        Paint::green("INFO").bold(),
+        message
+    ))
+    .await;
+    newline().await;
+}
+
+/// Log a WARNING message with timestamp
+#[allow(dead_code)]
+async fn log_warning(message: &str) {
+    let ts = Local::now().format("%Y-%m-%d %H:%M:%S");
+    print(format!(
+        "[{}] {} {}",
+        ts,
+        Paint::yellow("WARNING").bold(),
+        message
+    ))
+    .await;
+    newline().await;
+}
 
 pub struct LlmTraining;
 
