@@ -27,10 +27,10 @@ This roadmap delivers a realistic LLM training simulation module for genact. Sta
   3. Data files exist and are loaded via include_str!()
   4. Module compiles for both native and wasm32 targets
   5. Module checks should_exit() for graceful termination
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: Create data files and module skeleton
+- [ ] 01-01-PLAN.md - Create data files and module skeleton
 
 ### Phase 2: Training Loop
 **Goal**: Users see convincing training output with initialization, epoch progress, loss metrics, and GPU status
