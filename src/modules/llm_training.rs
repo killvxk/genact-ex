@@ -88,6 +88,51 @@ fn generate_gpu_statuses(num_gpus: u32, rng: &mut impl Rng) -> Vec<GpuStatus> {
         .collect()
 }
 
+/// Save checkpoint with progress bar (simulated write)
+async fn save_checkpoint(appconfig: &AppConfig, step: u32, file_size_gb: f32) {
+    let mut rng = rng();
+    let filename = format!("model-step-{}.safetensors", step);
+
+    log_info(&format!(
+        "Saving model checkpoint to ./checkpoints/{}",
+        filename
+    ))
+    .await;
+
+    let mut bar = BarBuilder::new()
+        .total(100)
+        .width(30)
+        .full_char('=')
+        .include_percent()
+        .build();
+
+    // Print initial progress line
+    print(format!("  Writing {:.1}GB... {}", file_size_gb, bar)).await;
+    newline().await;
+
+    for i in 1..=100 {
+        bar.replace(i);
+
+        cursor_up(1).await;
+        erase_line().await;
+        print(format!("  Writing {:.1}GB... {}", file_size_gb, bar)).await;
+        newline().await;
+
+        if appconfig.should_exit() {
+            return;
+        }
+
+        // Simulate write speed (~3-8 seconds total)
+        csleep(rng.random_range(30..80)).await;
+    }
+
+    log_info(&format!(
+        "Checkpoint saved: {} ({:.1}GB)",
+        filename, file_size_gb
+    ))
+    .await;
+}
+
 /// Display GPU status grid grouped by node with health-colored indicators
 async fn display_gpu_status_grid(gpus: &[GpuStatus], num_nodes: u32) {
     print(format!("{}", Paint::cyan("[ GPU Status Grid ]").bold())).await;
