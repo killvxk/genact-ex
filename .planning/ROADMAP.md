@@ -42,11 +42,11 @@ Plans:
   3. User sees epoch progress bar advancing with percentage
   4. User sees training loss decreasing realistically over steps
   5. User sees GPU status grid showing memory, utilization, and temperature for 64+ GPUs
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Implement initialization phase (model, tokenizer, dataset, distributed)
-- [ ] 02-02: Implement training loop with metrics and GPU status
+- [ ] 02-01-PLAN.md - Implement initialization phase (model, tokenizer, dataset, distributed)
+- [ ] 02-02-PLAN.md - Implement training loop with metrics and GPU status
 
 ### Phase 3: Validation & Checkpoints
 **Goal**: Users see validation phases and checkpoint saving during training
@@ -84,7 +84,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 0/1 | Not started | - |
-| 2. Training Loop | 0/2 | Not started | - |
+| 2. Training Loop | 0/2 | Planned | - |
 | 3. Validation & Checkpoints | 0/1 | Not started | - |
 | 4. Export & Polish | 0/1 | Not started | - |
 
