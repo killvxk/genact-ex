@@ -88,6 +88,31 @@ fn generate_gpu_statuses(num_gpus: u32, rng: &mut impl Rng) -> Vec<GpuStatus> {
         .collect()
 }
 
+/// Get a random validation warning message
+fn get_validation_warning(rng: &mut impl Rng, loss: f64) -> String {
+    let warnings = [
+        format!(
+            "Gradient norm exceeds threshold (norm={:.2}), clipping applied",
+            rng.random_range(5.0..15.0)
+        ),
+        "Detected potential numerical instability in attention scores".to_string(),
+        format!(
+            "Loss spike detected: current={:.4}, moving_avg={:.4}",
+            loss * 1.1,
+            loss
+        ),
+        "Memory pressure detected on GPU cluster, consider reducing batch size".to_string(),
+        "Validation accuracy below training accuracy by >10%, possible overfitting".to_string(),
+        format!(
+            "NaN detected in layer {}, batch skipped",
+            rng.random_range(1..48)
+        ),
+        "Gradient accumulation buffer near capacity".to_string(),
+    ];
+
+    warnings.choose(rng).unwrap().clone()
+}
+
 /// Save checkpoint with progress bar (simulated write)
 async fn save_checkpoint(appconfig: &AppConfig, step: u32, file_size_gb: f32) {
     let mut rng = rng();
