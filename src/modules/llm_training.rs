@@ -2,9 +2,9 @@
 use async_trait::async_trait;
 use chrono::Local;
 use progress_string::BarBuilder;
+use rand::Rng;
 use rand::rng;
 use rand::seq::IndexedRandom;
-use rand::Rng;
 use yansi::Paint;
 
 use crate::args::AppConfig;
@@ -15,7 +15,13 @@ use crate::modules::Module;
 /// Log an INFO message with timestamp
 async fn log_info(message: &str) {
     let ts = Local::now().format("%Y-%m-%d %H:%M:%S");
-    print(format!("[{}] {} {}", ts, Paint::green("INFO").bold(), message)).await;
+    print(format!(
+        "[{}] {} {}",
+        ts,
+        Paint::green("INFO").bold(),
+        message
+    ))
+    .await;
     newline().await;
 }
 
@@ -58,13 +64,9 @@ async fn run_initialization(appconfig: &AppConfig) {
     let num_nodes: u32 = 8;
 
     // Select random model, GPU, and dataset
-    let model = LLM_MODELS_LIST
-        .choose(&mut rng)
-        .unwrap_or(&"GPT-Unknown");
+    let model = LLM_MODELS_LIST.choose(&mut rng).unwrap_or(&"GPT-Unknown");
     let gpu = GPU_MODELS_LIST.choose(&mut rng).unwrap_or(&"A100");
-    let dataset = LLM_DATASETS_LIST
-        .choose(&mut rng)
-        .unwrap_or(&"CommonCrawl");
+    let dataset = LLM_DATASETS_LIST.choose(&mut rng).unwrap_or(&"CommonCrawl");
 
     // Generate random architecture details
     let params_b: f64 = rng.random_range(7.0..405.0);
@@ -250,38 +252,15 @@ impl Module for LlmTraining {
     }
 
     async fn run(&self, appconfig: &AppConfig) {
-        let mut rng = rng();
+        // Phase 2.1: Initialization
+        run_initialization(appconfig).await;
 
-        // Select random data
-        let model = LLM_MODELS_LIST.choose(&mut rng).unwrap_or(&"GPT-Unknown");
-        let gpu = GPU_MODELS_LIST.choose(&mut rng).unwrap_or(&"A100");
-        let dataset = LLM_DATASETS_LIST.choose(&mut rng).unwrap_or(&"CommonCrawl");
-
-        // Placeholder output - will be expanded in Phase 2
-        print(format!("[INFO] Loading model: {model}")).await;
-        newline().await;
-        csleep(500).await;
-
-        print(format!("[INFO] Detected 64x NVIDIA {gpu}")).await;
-        newline().await;
-        csleep(300).await;
-
-        print(format!("[INFO] Dataset: {dataset}")).await;
-        newline().await;
-        csleep(300).await;
-
-        // Simple loop with exit check
-        for epoch in 1..=3 {
-            print(format!("[TRAIN] Epoch {epoch}/3 - Training...")).await;
-            newline().await;
-            csleep(1000).await;
-
-            if appconfig.should_exit() {
-                return;
-            }
+        if appconfig.should_exit() {
+            return;
         }
 
-        print("[INFO] Training placeholder complete").await;
-        newline().await;
+        // Phase 2.2: Training Loop (02-02-PLAN.md)
+        // Placeholder - training loop will be added in next plan
+        log_info("Training placeholder - see 02-02-PLAN.md").await;
     }
 }
