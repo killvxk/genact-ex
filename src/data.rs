@@ -20,6 +20,9 @@ static TERRAFORM_IDS: &str = include_str!("../data/terraform_ids.txt");
 static CSS_PROPERTIES: &str = include_str!("../data/css_properties.txt");
 static WEB_APIS: &str = include_str!("../data/web_apis.txt");
 static WPT_CATEGORIES: &str = include_str!("../data/wpt_categories.txt");
+static LLM_MODELS: &str = include_str!("../data/llm_models.txt");
+static GPU_MODELS: &str = include_str!("../data/gpu_models.txt");
+static LLM_DATASETS: &str = include_str!("../data/llm_datasets.txt");
 
 lazy_static::lazy_static! {
     pub static ref BOOTLOG_LIST: Vec<&'static str> = BOOTLOG.lines().collect();
@@ -53,6 +56,9 @@ lazy_static::lazy_static! {
     pub static ref CSS_PROPERTIES_LIST: Vec<&'static str> = CSS_PROPERTIES.lines().collect();
     pub static ref WEB_APIS_LIST: Vec<&'static str> = WEB_APIS.lines().collect();
     pub static ref WPT_CATEGORIES_LIST: Vec<&'static str> = WPT_CATEGORIES.lines().collect();
+    pub static ref LLM_MODELS_LIST: Vec<&'static str> = LLM_MODELS.lines().collect();
+    pub static ref GPU_MODELS_LIST: Vec<&'static str> = GPU_MODELS.lines().collect();
+    pub static ref LLM_DATASETS_LIST: Vec<&'static str> = LLM_DATASETS.lines().collect();
 
 }
 
