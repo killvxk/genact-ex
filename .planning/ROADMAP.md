@@ -10,8 +10,8 @@ This roadmap delivers a realistic LLM training simulation module for genact. Sta
 - Integer phases (1, 2, 3, 4): Planned milestone work
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation** - Data files, module skeleton, basic structure
-- [ ] **Phase 2: Training Loop** - Core training with progress bars, metrics, GPU status
+- [x] **Phase 1: Foundation** - Data files, module skeleton, basic structure
+- [x] **Phase 2: Training Loop** - Core training with progress bars, metrics, GPU status
 - [ ] **Phase 3: Validation & Checkpoints** - Mid-training validation and checkpoint saving
 - [ ] **Phase 4: Export & Polish** - Final output, summary, clippy compliance
 
@@ -30,7 +30,7 @@ This roadmap delivers a realistic LLM training simulation module for genact. Sta
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md - Create data files and module skeleton
+- [x] 01-01-PLAN.md - Create data files and module skeleton
 
 ### Phase 2: Training Loop
 **Goal**: Users see convincing training output with initialization, epoch progress, loss metrics, and GPU status
@@ -45,8 +45,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md - Implement initialization phase (model, tokenizer, dataset, distributed)
-- [ ] 02-02-PLAN.md - Implement training loop with metrics and GPU status
+- [x] 02-01-PLAN.md - Implement initialization phase (model, tokenizer, dataset, distributed)
+- [x] 02-02-PLAN.md - Implement training loop with metrics and GPU status
 
 ### Phase 3: Validation & Checkpoints
 **Goal**: Users see validation phases and checkpoint saving during training
@@ -83,8 +83,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/1 | Not started | - |
-| 2. Training Loop | 0/2 | Planned | - |
+| 1. Foundation | 1/1 | Complete | 2026-01-30 |
+| 2. Training Loop | 2/2 | Complete | 2026-01-30 |
 | 3. Validation & Checkpoints | 0/1 | Not started | - |
 | 4. Export & Polish | 0/1 | Not started | - |
 
