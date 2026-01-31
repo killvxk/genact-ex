@@ -319,8 +319,196 @@ async fn display_gpu_status_grid(gpus: &[GpuStatus], num_nodes: u32) {
     }
 }
 
+/// Run the export phase after training completes
+async fn run_export_phase(
+    appconfig: &AppConfig,
+    model_name: &str,
+    params_b: f64,
+    train_loss: f64,
+    train_time_secs: f64,
+    total_epochs: u32,
+    total_steps: u32,
+) {
+    let mut rng = rng();
+
+    // Visual separator
+    newline().await;
+    print(format!(
+        "{}",
+        Paint::cyan("=============== Export Phase ===============").bold()
+    ))
+    .await;
+    newline().await;
+    newline().await;
+
+    // Calculate model size and shards
+    let total_size_gb = params_b * 2.0; // ~2 bytes per param in fp16
+    let num_shards = ((total_size_gb / 5.0).ceil() as u32).clamp(1, 8);
+    let size_per_shard = total_size_gb / num_shards as f64;
+
+    // Export steps with progress bars
+    let export_steps = [
+        ("Merging distributed weights...", 3000, 5000),
+        ("Optimizing model for inference...", 2000, 3000),
+        ("Serializing to SafeTensors format...", 2000, 3000),
+        ("Writing model shards...", 1000, 2000),
+    ];
+
+    for (step_name, min_ms, max_ms) in export_steps {
+        log_info(step_name).await;
+
+        let mut bar = BarBuilder::new()
+            .total(100)
+            .width(30)
+            .full_char('=')
+            .include_percent()
+            .build();
+
+        // Print initial progress line
+        print(format!("  Progress: {}", bar)).await;
+        newline().await;
+
+        let step_duration_ms = rng.random_range(min_ms..max_ms);
+        let sleep_per_step = step_duration_ms / 100;
+
+        for i in 1..=100 {
+            bar.replace(i);
+
+            cursor_up(1).await;
+            erase_line().await;
+            print(format!("  Progress: {}", bar)).await;
+            newline().await;
+
+            if appconfig.should_exit() {
+                return;
+            }
+
+            csleep(sleep_per_step as u64).await;
+        }
+    }
+
+    if appconfig.should_exit() {
+        return;
+    }
+
+    // Shard file exports
+    newline().await;
+    log_info("Exporting model shards:").await;
+    for shard in 1..=num_shards {
+        log_info(&format!(
+            "  Saved: model-{:05}-of-{:05}.safetensors ({:.1}GB)",
+            shard, num_shards, size_per_shard
+        ))
+        .await;
+        csleep(rng.random_range(100..300)).await;
+
+        if appconfig.should_exit() {
+            return;
+        }
+    }
+
+    // Companion files
+    newline().await;
+    log_info("Saving companion files:").await;
+    let companion_files = [
+        "config.json",
+        "tokenizer.json",
+        "generation_config.json",
+        "model.safetensors.index.json",
+    ];
+    for file in companion_files {
+        log_info(&format!("  Saved: {}", file)).await;
+        csleep(rng.random_range(50..150)).await;
+
+        if appconfig.should_exit() {
+            return;
+        }
+    }
+
+    // Export complete message
+    newline().await;
+    log_info(&format!(
+        "Export complete: {} shards, {:.1}GB total",
+        num_shards, total_size_gb
+    ))
+    .await;
+
+    if appconfig.should_exit() {
+        return;
+    }
+
+    // Training summary separator
+    newline().await;
+    print(format!(
+        "{}",
+        Paint::cyan("============ Training Summary ============").bold()
+    ))
+    .await;
+    newline().await;
+    newline().await;
+
+    // Format time
+    let hours = (train_time_secs / 3600.0).floor() as u32;
+    let minutes = ((train_time_secs % 3600.0) / 60.0).floor() as u32;
+    let seconds = (train_time_secs % 60.0).floor() as u32;
+    let time_str = if hours > 0 {
+        format!("{}h {}m {}s", hours, minutes, seconds)
+    } else {
+        format!("{}m {}s", minutes, seconds)
+    };
+
+    // Calculate derived metrics
+    let final_ppl = train_loss.exp();
+    let avg_gpu_util: u32 = rng.random_range(92..98);
+    let peak_memory: f64 = rng.random_range(72.0..78.0);
+
+    // Sanitize model name for path (lowercase, replace spaces)
+    let model_path = model_name.to_lowercase().replace(' ', "-");
+
+    // Training summary table (ASCII box style)
+    print("+-----------------------------------------+".to_string()).await;
+    newline().await;
+    print("|           Training Summary              |".to_string()).await;
+    newline().await;
+    print("+-----------------------------------------+".to_string()).await;
+    newline().await;
+    print(format!("| Total time:     {:>22} |", time_str)).await;
+    newline().await;
+    print(format!("| Epochs:         {:>22} |", total_epochs)).await;
+    newline().await;
+    print(format!("| Steps:          {:>22} |", total_steps)).await;
+    newline().await;
+    print(format!("| Final loss:     {:>22.4} |", train_loss)).await;
+    newline().await;
+    print(format!("| Final PPL:      {:>22.2} |", final_ppl)).await;
+    newline().await;
+    print(format!("| Avg GPU util:   {:>21}% |", avg_gpu_util)).await;
+    newline().await;
+    print(format!("| Peak memory:    {:>20.1}GB |", peak_memory)).await;
+    newline().await;
+    print(format!(
+        "| Model saved:    ./outputs/{}/final/ |",
+        &model_path[..model_path.len().min(10)]
+    ))
+    .await;
+    newline().await;
+    print(format!("| Total size:     {:>20.1}GB |", total_size_gb)).await;
+    newline().await;
+    print("+-----------------------------------------+".to_string()).await;
+    newline().await;
+
+    // Success message
+    newline().await;
+    print(format!(
+        "{}",
+        Paint::green("Training completed successfully!").bold()
+    ))
+    .await;
+    newline().await;
+}
+
 /// Run the training loop with dual progress bars, metrics, and GPU status
-async fn run_training_loop(appconfig: &AppConfig) {
+async fn run_training_loop(appconfig: &AppConfig) -> (f64, u32, u32) {
     let mut rng = rng();
 
     // Configuration
@@ -478,7 +666,7 @@ async fn run_training_loop(appconfig: &AppConfig) {
 
             if appconfig.should_exit() {
                 newline().await;
-                return;
+                return (loss, total_epochs, total_steps);
             }
 
             csleep(rng.random_range(30..80)).await;
@@ -506,7 +694,7 @@ async fn run_training_loop(appconfig: &AppConfig) {
         .await;
 
         if appconfig.should_exit() {
-            return;
+            return (loss, total_epochs, total_steps);
         }
 
         // Re-print progress bars for next epoch
@@ -520,6 +708,8 @@ async fn run_training_loop(appconfig: &AppConfig) {
 
     newline().await;
     log_info("======== Training Complete ========").await;
+
+    (loss, total_epochs, total_steps)
 }
 
 /// Run the initialization phase of LLM training simulation
