@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Realistically simulate large-scale LLM training process, making observers believe actual model training is occurring
-**Current focus:** Phase 2 - Training Loop (Complete)
+**Current focus:** Phase 3 - Validation & Checkpoints (Complete)
 
 ## Current Position
 
-Phase: 2 of 4 (Training Loop)
-Plan: 2 of 2 in current phase (COMPLETE)
+Phase: 3 of 4 (Validation & Checkpoints)
+Plan: 1 of 1 in current phase (COMPLETE)
 Status: Phase complete
-Last activity: 2026-01-30 - Completed 02-02-PLAN.md
+Last activity: 2026-01-31 - Completed 03-01-PLAN.md
 
-Progress: [======----] 60%
+Progress: [========--] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 4 min
-- Total execution time: 11 min
+- Total plans completed: 4
+- Average duration: 5 min
+- Total execution time: 21 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [======----] 60%
 |-------|-------|-------|----------|
 | 1. Foundation | 1/1 | 3 min | 3 min |
 | 2. Training Loop | 2/2 | 8 min | 4 min |
-| 3. Validation & Checkpoints | 0/1 | - | - |
+| 3. Validation & Checkpoints | 1/1 | 10 min | 10 min |
 | 4. Export & Polish | 0/1 | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (3 min), 02-01 (3 min), 02-02 (5 min)
+- Last 5 plans: 01-01 (3 min), 02-01 (3 min), 02-02 (5 min), 03-01 (10 min)
 - Trend: On track
 
 *Updated after each plan completion*
@@ -56,6 +56,10 @@ Recent decisions affecting current work:
 - [02-02] GPU values use Normal distribution for per-GPU variation
 - [02-02] Progress bars re-printed after log output for visual continuity
 - [02-02] Loss decay rate 0.002 with 3% Gaussian noise for realism
+- [03-01] Validation loss 5-15% higher than train_loss for realism
+- [03-01] Checkpoint saves use safetensors format (modern HuggingFace standard)
+- [03-01] Early stopping patience counter shows but never triggers (infinite run)
+- [03-01] 35% warning probability balances realism without being annoying
 
 ### Pending Todos
 
@@ -67,28 +71,22 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-30T22:30:00Z
-Stopped at: Completed 02-02-PLAN.md (Training Loop phase)
+Last session: 2026-01-31T14:55:00Z
+Stopped at: Completed 03-01-PLAN.md (Validation & Checkpoints phase)
 Resume file: None
 
-## Phase 2 Complete
+## Phase 3 Complete
 
-All plans in Phase 2 (Training Loop) are complete:
+All plans in Phase 3 (Validation & Checkpoints) are complete:
 
-**02-01 (Initialization):**
-- Model loading with name, params, architecture, progress bar
-- Tokenizer and dataset loading with realistic details
-- NCCL distributed environment initialization
-- GPU detection for 64 GPUs across 8 nodes
-- PyTorch DDP style logging with timestamps and rank info
-- Helper functions (log_info, log_info_rank, log_warning) established
+**03-01 (Validation and Checkpoints):**
+- save_checkpoint function with progress bar and safetensors format
+- get_validation_warning function with 7 varied warning messages
+- run_validation function with visual separator, progress bar, metrics
+- Multi-line validation summary report (val_loss, ppl, accuracy, train_loss delta, time)
+- Checkpoint saving when val_loss improves
+- Early stopping patience counter (display only)
+- 35% warning probability
+- Integration into training loop after each epoch
 
-**02-02 (Training Loop):**
-- Dual progress bars (epoch/step) with real-time metrics
-- Loss decay using exponential function with Gaussian noise
-- GPU status grid displaying 64 GPUs across 8 nodes
-- Metrics: loss, perplexity, learning rate, tokens/sec, elapsed/ETA
-- Occasional NCCL AllReduce and WARNING logs
-- Responsive CTRL-C handling
-
-**Ready for Phase 3:** Validation & Checkpoints
+**Ready for Phase 4:** Export & Polish

@@ -12,7 +12,7 @@ This roadmap delivers a realistic LLM training simulation module for genact. Sta
 
 - [x] **Phase 1: Foundation** - Data files, module skeleton, basic structure
 - [x] **Phase 2: Training Loop** - Core training with progress bars, metrics, GPU status
-- [ ] **Phase 3: Validation & Checkpoints** - Mid-training validation and checkpoint saving
+- [x] **Phase 3: Validation & Checkpoints** - Mid-training validation and checkpoint saving
 - [ ] **Phase 4: Export & Polish** - Final output, summary, clippy compliance
 
 ## Phase Details
@@ -60,7 +60,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 03-01-PLAN.md - Implement validation and checkpoint phases
+- [x] 03-01-PLAN.md - Implement validation and checkpoint phases
 
 ### Phase 4: Export & Polish
 **Goal**: Training completes with export phase and passes all quality checks
@@ -85,8 +85,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/1 | Complete | 2026-01-30 |
 | 2. Training Loop | 2/2 | Complete | 2026-01-30 |
-| 3. Validation & Checkpoints | 0/1 | Ready | - |
-| 4. Export & Polish | 0/1 | Not started | - |
+| 3. Validation & Checkpoints | 1/1 | Complete | 2026-01-31 |
+| 4. Export & Polish | 0/1 | Ready | - |
 
 ---
 *Roadmap created: 2026-01-30*
