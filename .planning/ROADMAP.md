@@ -71,10 +71,10 @@ Plans:
   2. User sees training completion summary (total time, final loss, save location)
   3. `cargo clippy -- -D warnings` passes with no errors
   4. Module works correctly in WASM environment
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 04-01: Implement export phase and final polish
+- [ ] 04-01-PLAN.md - Implement export phase, summary display, infinite loop, and clippy compliance
 
 ## Progress
 
