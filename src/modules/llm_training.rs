@@ -910,14 +910,51 @@ impl Module for LlmTraining {
     }
 
     async fn run(&self, appconfig: &AppConfig) {
-        // Phase 2.1: Initialization
-        run_initialization(appconfig).await;
+        loop {
+            // Store context for export phase
+            let mut rng = rng();
+            let model_name = LLM_MODELS_LIST.choose(&mut rng).unwrap_or(&"GPT-Unknown");
+            let params_b: f64 = rng.random_range(7.0..405.0);
 
-        if appconfig.should_exit() {
-            return;
+            let train_start = Instant::now();
+
+            // Phase: Initialization
+            run_initialization(appconfig).await;
+
+            if appconfig.should_exit() {
+                return;
+            }
+
+            // Phase: Training Loop (returns final loss and stats)
+            let (final_loss, total_epochs, total_steps) = run_training_loop(appconfig).await;
+
+            if appconfig.should_exit() {
+                return;
+            }
+
+            let train_time = train_start.elapsed().as_secs_f64();
+
+            // Phase: Export
+            run_export_phase(
+                appconfig,
+                model_name,
+                params_b,
+                final_loss,
+                train_time,
+                total_epochs,
+                total_steps,
+            )
+            .await;
+
+            if appconfig.should_exit() {
+                return;
+            }
+
+            // Transition to next training run
+            newline().await;
+            log_info("Starting new training run...").await;
+            csleep(2000).await;
+            newline().await;
         }
-
-        // Phase 2.2: Training Loop
-        run_training_loop(appconfig).await;
     }
 }
