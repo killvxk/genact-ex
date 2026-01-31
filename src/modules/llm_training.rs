@@ -158,6 +158,128 @@ async fn save_checkpoint(appconfig: &AppConfig, step: u32, file_size_gb: f32) {
     .await;
 }
 
+/// Run validation phase after each epoch
+async fn run_validation(
+    appconfig: &AppConfig,
+    _epoch: u32,
+    train_loss: f64,
+    best_val_loss: &mut f64,
+    total_steps: u32,
+    patience: &mut u32,
+    max_patience: u32,
+) -> f64 {
+    let mut rng = rng();
+
+    // Validation configuration (per CONTEXT.md: 80-150 steps, 10-20 seconds)
+    let val_steps = rng.random_range(80..150);
+
+    // Visual separator (per CONTEXT.md: PyTorch Lightning style)
+    newline().await;
+    print(format!(
+        "{}",
+        Paint::cyan("=============== Validation ===============").bold()
+    ))
+    .await;
+    newline().await;
+
+    // Validation loss is 5-15% higher than training loss (CONTEXT.md)
+    let val_loss_base = train_loss * (1.0 + rng.random_range(0.05..0.15));
+    let noise_dist = Normal::new(0.0, 0.02).unwrap();
+
+    // Validation progress bar (reuse training style)
+    let mut bar = BarBuilder::new()
+        .total(val_steps as usize)
+        .width(35)
+        .full_char('=')
+        .include_percent()
+        .build();
+
+    let start_time = Instant::now();
+    let mut current_val_loss = val_loss_base;
+
+    // Print initial progress line
+    print(format!("Val:   {} | Loss: -.----", bar)).await;
+    newline().await;
+
+    for step in 1..=val_steps {
+        // Add noise to validation loss
+        let noise: f64 = noise_dist.sample(&mut rng);
+        current_val_loss = (val_loss_base * (1.0 + noise)).max(0.1);
+
+        let ppl = current_val_loss.exp();
+        let accuracy = (1.0 / (1.0 + current_val_loss)).min(0.95);
+        let tokens_per_sec = rng.random_range(900_000.0..1_100_000.0);
+
+        bar.replace(step as usize);
+
+        // Update progress (single line update)
+        cursor_up(1).await;
+        erase_line().await;
+        print(format!(
+            "Val:   {} | Loss: {:.4} | PPL: {:.2} | Acc: {:.2}% | {:.0}tok/s",
+            bar,
+            current_val_loss,
+            ppl,
+            accuracy * 100.0,
+            tokens_per_sec
+        ))
+        .await;
+        newline().await;
+
+        if appconfig.should_exit() {
+            return current_val_loss;
+        }
+
+        // ~10-20 sec total: sleep_per_step = 10000-20000ms / 80-150 steps
+        csleep(rng.random_range(80..150)).await;
+    }
+
+    let val_time = start_time.elapsed().as_secs_f64();
+    let final_ppl = current_val_loss.exp();
+    let final_accuracy = (1.0 / (1.0 + current_val_loss)).min(0.95);
+
+    // Validation summary (multi-line report per CONTEXT.md)
+    newline().await;
+    log_info("Validation Results:").await;
+    log_info(&format!("  val_loss:     {:.4}", current_val_loss)).await;
+    log_info(&format!("  val_ppl:      {:.2}", final_ppl)).await;
+    log_info(&format!("  val_accuracy: {:.2}%", final_accuracy * 100.0)).await;
+    log_info(&format!(
+        "  train_loss:   {:.4} (delta: {:+.4})",
+        train_loss,
+        current_val_loss - train_loss
+    ))
+    .await;
+    log_info(&format!("  time:         {:.1}s", val_time)).await;
+
+    // Random warning (30-40% chance per CONTEXT.md)
+    if rng.random_bool(0.35) {
+        log_warning(&get_validation_warning(&mut rng, current_val_loss)).await;
+    }
+
+    // Checkpoint logic (best model strategy per CONTEXT.md)
+    if current_val_loss < *best_val_loss {
+        *best_val_loss = current_val_loss;
+        *patience = 0;
+
+        // Save checkpoint with progress bar
+        let file_size_gb: f32 = rng.random_range(2.0..8.0);
+        save_checkpoint(appconfig, total_steps, file_size_gb).await;
+    } else {
+        *patience += 1;
+        // Early stopping warning (never actually stops per CONTEXT.md)
+        log_warning(&format!(
+            "EarlyStopping: val_loss did not improve. Patience: {}/{}",
+            patience, max_patience
+        ))
+        .await;
+    }
+
+    newline().await;
+
+    current_val_loss
+}
+
 /// Display GPU status grid grouped by node with health-colored indicators
 async fn display_gpu_status_grid(gpus: &[GpuStatus], num_nodes: u32) {
     print(format!("{}", Paint::cyan("[ GPU Status Grid ]").bold())).await;
@@ -217,6 +339,11 @@ async fn run_training_loop(appconfig: &AppConfig) {
 
     let start_time = Instant::now();
     let mut total_steps = 0u32;
+
+    // Validation state
+    let mut best_val_loss = f64::MAX;
+    let mut patience: u32 = 0;
+    let max_patience: u32 = 5;
 
     // Epoch progress bar (TRAIN-01)
     let mut epoch_bar = BarBuilder::new()
@@ -365,7 +492,22 @@ async fn run_training_loop(appconfig: &AppConfig) {
             epoch, loss, epoch_time
         ))
         .await;
-        newline().await;
+
+        // Run validation after each epoch
+        run_validation(
+            appconfig,
+            epoch,
+            loss,
+            &mut best_val_loss,
+            total_steps,
+            &mut patience,
+            max_patience,
+        )
+        .await;
+
+        if appconfig.should_exit() {
+            return;
+        }
 
         // Re-print progress bars for next epoch
         if epoch < total_epochs {
