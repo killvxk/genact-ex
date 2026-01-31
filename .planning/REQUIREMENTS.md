@@ -32,19 +32,19 @@
 
 ### Validation (VAL)
 
-- [ ] **VAL-01**: Display validation phase start message
-- [ ] **VAL-02**: Display validation progress bar
-- [ ] **VAL-03**: Display validation set loss and perplexity
+- [x] **VAL-01**: Display validation phase start message
+- [x] **VAL-02**: Display validation progress bar
+- [x] **VAL-03**: Display validation set loss and perplexity
 
 ### Checkpoint (CKPT)
 
-- [ ] **CKPT-01**: Periodically display checkpoint save messages
-- [ ] **CKPT-02**: Display save path and file size
+- [x] **CKPT-01**: Periodically display checkpoint save messages
+- [x] **CKPT-02**: Display save path and file size
 
 ### Export (EXPORT)
 
-- [ ] **EXPORT-01**: Display model export process (format conversion)
-- [ ] **EXPORT-02**: Display training completion summary (total time, final loss, save location)
+- [x] **EXPORT-01**: Display model export process (format conversion)
+- [x] **EXPORT-02**: Display training completion summary (total time, final loss, save location)
 
 ### Data/Display (DATA)
 
@@ -57,7 +57,7 @@
 - [x] **TECH-01**: Use io::* functions for WASM compatibility
 - [x] **TECH-02**: Implement Module trait (name, signature, run)
 - [x] **TECH-03**: Check appconfig.should_exit() for graceful exit
-- [ ] **TECH-04**: Pass cargo clippy -- -D warnings
+- [x] **TECH-04**: Pass cargo clippy -- -D warnings
 
 ## v2 Requirements
 
@@ -103,20 +103,20 @@
 | GPU-02 | Phase 2 | Complete |
 | GPU-03 | Phase 2 | Complete |
 | GPU-04 | Phase 2 | Complete |
-| VAL-01 | Phase 3 | Pending |
-| VAL-02 | Phase 3 | Pending |
-| VAL-03 | Phase 3 | Pending |
-| CKPT-01 | Phase 3 | Pending |
-| CKPT-02 | Phase 3 | Pending |
-| EXPORT-01 | Phase 4 | Pending |
-| EXPORT-02 | Phase 4 | Pending |
+| VAL-01 | Phase 3 | Complete |
+| VAL-02 | Phase 3 | Complete |
+| VAL-03 | Phase 3 | Complete |
+| CKPT-01 | Phase 3 | Complete |
+| CKPT-02 | Phase 3 | Complete |
+| EXPORT-01 | Phase 4 | Complete |
+| EXPORT-02 | Phase 4 | Complete |
 | DATA-01 | Phase 1 | Complete |
 | DATA-02 | Phase 1 | Complete |
 | DATA-03 | Phase 1 | Complete |
 | TECH-01 | Phase 1 | Complete |
 | TECH-02 | Phase 1 | Complete |
 | TECH-03 | Phase 1 | Complete |
-| TECH-04 | Phase 4 | Pending |
+| TECH-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 27 total
@@ -125,4 +125,4 @@
 
 ---
 *Requirements defined: 2026-01-30*
-*Last updated: 2026-01-30 after Phase 2 completion*
+*Last updated: 2026-01-31 after Phase 4 completion (all v1 requirements complete)*
